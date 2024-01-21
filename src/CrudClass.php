@@ -45,7 +45,7 @@ trait CrudClass
      *
      * @return void
      */
-    protected function cancelAction(): void
+    public function cancelAction(): void
     {
 
         $this->reset();

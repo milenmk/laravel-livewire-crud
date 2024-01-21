@@ -1,0 +1,22 @@
+{
+  "name": "milenmk/laravel-livewire-crud",
+  "description": "CRUD file that can be used for all of your Laravel controllers and/or Livewire components",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Milenmk\\LaravelCrud\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Milen Karaganski",
+      "email": "milenmk@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^8.2"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^8.21"
+  }
+}

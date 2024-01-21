@@ -17,7 +17,8 @@
     "php": "^8.2"
   },
   "require-dev": {
-    "orchestra/testbench": "^8.21"
+    "orchestra/testbench": "^8.21",
+    "milenmk/laravel-livewire-crud": "^1.0"
   },
   "minimum-stability": "stable",
   "prefer-stable": true

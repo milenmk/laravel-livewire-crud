@@ -18,5 +18,7 @@
   },
   "require-dev": {
     "orchestra/testbench": "^8.21"
-  }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
 }

@@ -1,6 +1,7 @@
 {
   "name": "milenmk/laravel-livewire-crud",
-  "description": "CRUD file that can be used for all of your Laravel controllers and/or Livewire components",
+  "description": "A reusable CRUD package for Laravel controllers and Livewire components, designed to simplify and standardize common database operations(create, read, update, delete), reduce boilerplate code, and support bulk actions.",
+  "version": "1.1.0",
   "license": "MIT",
   "autoload": {
     "psr-4": {
@@ -13,8 +14,20 @@
       "email": "milenmk@gmail.com"
     }
   ],
+  "repository": [
+    {
+      "type": "git",
+      "url": "https://github.com/milenmk/laravel-livewire-crud"
+    }
+  ],
   "require": {
-    "php": "^8.2"
+    "php": "^8.1"
+  },
+  "suggest": {
+    "livewire/livewire": "^3.0"
+  },
+  "conflict": {
+    "laravel/framework": "<9.0"
   },
   "require-dev": {
     "orchestra/testbench": "^8.21"

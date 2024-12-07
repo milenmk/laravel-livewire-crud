@@ -5,7 +5,9 @@ declare(strict_types = 1);
 namespace Milenmk\LaravelCrud;
 
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 /**
  * CRUD class for Livewire components
@@ -13,45 +15,40 @@ use Illuminate\Support\Facades\Log;
 trait CrudClass
 {
 
+    use BulkActions;
+    use ModelResolver;
+
     /**
      * Store new data in the database
      */
     public function commonStoreData(string $modelName): void
     {
 
-        $this->validate();
+        $this->validateIfAvailable();
 
-        try {
-            $modelClass = 'App\Models\\' . $modelName;
-            $object = $modelClass::create($this->getData(ucfirst($modelName)));
-            $this->dispatch('created');
-        } catch (Exception $exc) {
-            Log::error($exc->getMessage() . ' for ' . __CLASS__ . '::' . __FUNCTION__);
-            $this->dispatch('error');
-        }
+        $modelClass = $this->resolveModel($modelName);
 
-        $this->cancelAction();
+        DB::transaction(function () use ($modelClass) {
+
+            try {
+                $modelClass::create($this->getData($modelClass));
+                $this->dispatchEvent('created');
+            } catch (Exception $e) {
+                $this->logError($e, __FUNCTION__);
+                $this->dispatchEvent('error');
+                throw $e;
+            }
+        });
+
+        $this->cancelActionIfAvailable();
     }
 
     /**
      * Get data for the model
      *
-     * @param string $modelName Mode name
+     * @param \Illuminate\Database\Eloquent\Model $modelName Mode name
      */
-    abstract protected function getData(string $modelName): array;
-
-    /**
-     * Reset input fields, errors and validations
-     *
-     * @return void
-     */
-    public function cancelAction(): void
-    {
-
-        $this->reset();
-        $this->resetErrorBag();
-        $this->resetValidation();
-    }
+    abstract protected function getData(Model $modelName): array;
 
     /**
      * Get data for an edit form
@@ -61,49 +58,65 @@ trait CrudClass
     public function commonEditData(string $modelName, int $recordId): void
     {
 
+        $modelClass = $this->resolveModel($modelName);
+
         try {
-            $modelClass = 'App\Models\\' . $modelName;
             $object = $modelClass::findOrFail($recordId);
-            if ($object) {
-                $this->id = $object->id;
-                $this->setDataFromObject(ucfirst($modelName), $object);
-            } else {
-                $this->dispatch('warning');
-                $this->cancelAction();
+
+            if (property_exists($this, 'id') && is_null($this->id)) {
+                $this->id = $object->id;  // Set the ID if it is not set already
             }
-        } catch (Exception $exc) {
-            Log::error($exc->getMessage() . ' for ' . __CLASS__ . '::' . __FUNCTION__);
-            $this->dispatch('error');
+
+            $this->setDataFromObject($modelClass, $object);
+        } catch (Exception $e) {
+            $this->logError($e, __FUNCTION__);
+            $this->dispatchEvent('error');
         }
     }
 
     /**
      * Set model properties values from object
      *
-     * @param string $modelName Model name
-     * @param object $object    Object
+     * @param \Illuminate\Database\Eloquent\Model $modelName Model name
+     * @param object                              $object    Object
      */
-    abstract protected function setDataFromObject(string $modelName, object $object): void;
+    abstract protected function setDataFromObject(Model $modelName, object $object): void;
 
     /**
      * Update data in the database
+     *
+     * @param string   $modelName
+     * @param int|null $recordId Record ID
      */
-    public function commonUpdateData(string $modelName): void
+    public function commonUpdateData(string $modelName, int $recordId = null): void
     {
 
-        $this->validate();
+        $this->validateIfAvailable();
 
-        try {
-            $modelClass = 'App\Models\\' . $modelName;
-            $object = $modelClass::findOrFail($this->id);
-            $update = $object->update($this->getData(ucfirst($modelName)));
-            $this->dispatch('updated');
-        } catch (Exception $exc) {
-            Log::error($exc->getMessage() . ' for ' . __CLASS__ . '::' . __FUNCTION__);
-            $this->dispatch('error');
-        }
+        $modelClass = $this->resolveModel($modelName);
 
-        $this->cancelAction();
+        DB::transaction(function () use ($recordId, $modelClass) {
+
+            try {
+                // Check if $id is set and use it, otherwise fallback to $recordId.
+                $idToUse = $this->id ?? $recordId;
+
+                // Ensure that either $this->id or $recordId is available for findOrFail
+                if (!$idToUse) {
+                    throw new Exception('ID is not specified for updating the record.');
+                }
+
+                $object = $modelClass::findOrFail($idToUse);
+                $object->update($this->getData($modelClass));
+                $this->dispatchEvent('updated');
+            } catch (Exception $e) {
+                $this->logError($e, __FUNCTION__);
+                $this->dispatchEvent('error');
+                throw $e;
+            }
+        });
+
+        $this->cancelActionIfAvailable();
     }
 
     /**
@@ -114,76 +127,115 @@ trait CrudClass
     public function commonDeleteData(string $modelName, int $recordId): void
     {
 
-        $this->useCachedRows();
+        $modelClass = $this->resolveModel($modelName);
 
         try {
-            $modelClass = 'App\Models\\' . $modelName;
             $object = $modelClass::findOrFail($recordId);
-            if ($object) {
-                $this->id = $object->id;
-                $this->setDataFromObject(ucfirst($modelName), $object);
-            } else {
-                $this->dispatch('warning');
-                $this->cancelAction();
+
+            if (property_exists($this, 'id') && is_null($this->id)) {
+                $this->id = $object->id;  // Set the ID if it is not set already
             }
-        } catch (Exception $exc) {
-            Log::error($exc->getMessage() . ' for ' . __CLASS__ . '::' . __FUNCTION__);
-            $this->dispatch('error');
+
+            $this->setDataFromObject($modelClass, $object);
+        } catch (Exception $e) {
+            $this->logError($e, __FUNCTION__);
+            $this->dispatchEvent('error');
         }
     }
 
     /**
      * Delete data from database
      *
+     * @param string   $modelName
+     * @param int|null $recordId Record ID
      */
-    public function commonDestroyData(string $modelName): void
+    public function commonDestroyData(string $modelName, int $recordId = null): void
     {
 
-        try {
-            $modelClass = 'App\Models\\' . $modelName;
-            $object = $modelClass::findOrFail($this->id);
-            $delete = $object->delete();
-            $this->dispatch('deleted');
-        } catch (Exception $exc) {
-            Log::error($exc->getMessage() . ' for ' . __CLASS__ . '::' . __FUNCTION__);
-            $this->dispatch('error');
-        }
+        $modelClass = $this->resolveModel($modelName);
 
-        $this->cancelAction();
+        DB::transaction(function () use ($recordId, $modelClass) {
+
+            try {
+                // Check if $id is set and use it, otherwise fallback to $recordId.
+                $idToUse = $this->id ?? $recordId;
+
+                // Ensure that either $this->id or $recordId is available for findOrFail
+                if (!$idToUse) {
+                    throw new Exception('ID is not specified for updating the record.');
+                }
+
+                $object = $modelClass::findOrFail($idToUse);
+                $object->delete();
+                $this->dispatchEvent('deleted');
+            } catch (Exception $e) {
+                $this->logError($e, __FUNCTION__);
+                $this->dispatchEvent('error');
+                throw $e;
+            }
+        });
+
+        $this->cancelActionIfAvailable();
     }
 
     /**
-     * Bulk delete data from database
+     * Insert error(s) message into the app .log file
      *
+     * @param \Exception $e
+     * @param string     $method
+     *
+     * @return void
      */
-    public function commonBulkDestroyData(string $modelName): void
+    protected function logError(Exception $e, string $method): void
     {
 
-        $object = null;
-        $errors = [];
-        $error = 0;
+        Log::error(
+            "[{$method}] Error: {$e->getMessage()}",
+            ['class' => __CLASS__, 'user_id' => auth()->id()]
+        );
+    }
 
-        foreach ($this->selectedItems as $item) {
-            try {
-                $modelClass = 'App\Models\\' . $modelName;
-                $object = $modelClass::find($item);
-                $object->delete();
-            } catch (Exception $exc) {
-                Log::error($exc->getMessage() . ' for ' . __CLASS__ . '::' . __FUNCTION__);
-                $errors[] = $exc;
-                $error++;
-            }
+    /**
+     * Handle event dispatching
+     */
+    protected function dispatchEvent(string $eventName): void
+    {
 
-            if ($error || $object === null || $object === false) {
-                $this->dispatch('error');
-            }
+        if (method_exists($this, 'dispatch')) {
+            $this->dispatch($eventName); // Livewire
+        } else {
+            event($eventName); // Laravel Controller
+        }
+    }
+
+    /**
+     * Reset input fields and validation if Livewire methods exist
+     */
+    protected function cancelActionIfAvailable(): void
+    {
+
+        if (method_exists($this, 'reset')) {
+            $this->reset();
         }
 
-        if (!$error || $object !== null) {
-            $this->dispatch('bulk-deleted');
+        if (method_exists($this, 'resetErrorBag')) {
+            $this->resetErrorBag();
         }
 
-        $this->cancelAction();
+        if (method_exists($this, 'resetValidation')) {
+            $this->resetValidation();
+        }
+    }
+
+    /**
+     * Validate only if the method exists
+     */
+    protected function validateIfAvailable(): void
+    {
+
+        if (method_exists($this, 'validate')) {
+            $this->validate();
+        }
     }
 
 }

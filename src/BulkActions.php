@@ -1,11 +1,12 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Milenmk\LaravelCrud;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 /**
  * Trait for Bulk Actions
@@ -16,10 +17,11 @@ trait BulkActions
     /**
      * Bulk delete data from database
      *
-     * @param string $modelName
-     * @param array  $recordsIds
+     * @param  string  $modelName
+     * @param  array  $recordsIds
      *
      * @return void
+     * @throws Throwable
      */
     public function commonBulkDestroyData(string $modelName, array $recordsIds): void
     {

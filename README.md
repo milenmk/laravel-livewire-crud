@@ -14,7 +14,7 @@ This package is ideal for developers who want to focus on business logic rather 
 
 ## Requirements
 
-- PHP 8.0 or higher
+- PHP 8.1 or higher
 - Laravel 9.x or higher
 - Livewire 3.x or higher
 

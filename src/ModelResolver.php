@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Milenmk\LaravelCrud;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\App;
 use InvalidArgumentException;
 
 /**
@@ -17,14 +16,14 @@ trait ModelResolver
     /**
      * @param  string  $modelName  Name of the model (e.g., 'User')
      *
-     * @return Model
+     * @return string
      */
-    protected function resolveModel(string $modelName): Model
+    protected function resolveModel(string $modelName): string
     {
 
-        $modelClass = App::make("App\\Models\\$modelName");
+        $modelClass = "App\\Models\\$modelName";
 
-        if (!is_subclass_of($modelClass, Model::class)) {
+        if (!class_exists($modelClass) || !is_subclass_of($modelClass, Model::class)) {
             throw new InvalidArgumentException("Invalid model: $modelName");
         }
 

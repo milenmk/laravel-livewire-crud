@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Milenmk\LaravelCrud;
 
 use Exception;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * Get or Set data for models
@@ -18,7 +17,7 @@ trait GetSetData
     /**
      * Get data for the model
      */
-    protected function getData(Model $modelName): array
+    protected function getData(string $modelName): array
     {
 
         try {
@@ -51,7 +50,7 @@ trait GetSetData
     /**
      * Set data from the object to the properties
      */
-    protected function setDataFromObject(Model $modelName, object $object): void
+    protected function setDataFromObject(string $modelName, object $object): void
     {
 
         try {

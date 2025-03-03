@@ -1,3 +1,9 @@
+## v1.3.1
+
+#### Published at: 2025-03-04
+
+- Fix bug in Model Resolver
+
 ## v1.3.0
 
 #### Published at: 2025-03-03

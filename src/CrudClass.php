@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Milenmk\LaravelCrud;
 
 use Exception;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -66,9 +65,9 @@ trait CrudClass
     /**
      * Get data for the model
      *
-     * @param  Model  $modelName  Mode name
+     * @param  string  $modelName  Mode name
      */
-    abstract protected function getData(Model $modelName): array;
+    abstract protected function getData(string $modelName): array;
 
     /**
      * Handle event dispatching
@@ -146,10 +145,10 @@ trait CrudClass
     /**
      * Set model properties values from object
      *
-     * @param  Model  $modelName  Model name
+     * @param  string  $modelName  Model name
      * @param  object  $object  Object
      */
-    abstract protected function setDataFromObject(Model $modelName, object $object): void;
+    abstract protected function setDataFromObject(string $modelName, object $object): void;
 
     /**
      * Update data in the database

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Milenmk\LaravelCrud;
 
@@ -15,9 +15,9 @@ trait ModelResolver
 {
 
     /**
-     * @param string $modelName Name of the model (e.g., 'User')
+     * @param  string  $modelName  Name of the model (e.g., 'User')
      *
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return Model
      */
     protected function resolveModel(string $modelName): Model
     {

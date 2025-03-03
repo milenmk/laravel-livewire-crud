@@ -24,6 +24,13 @@ trait GetSetData
         try {
             $model = app($modelName);
 
+            // Check if Livewire Forms is being used
+            if (property_exists($this, 'form') && method_exists($this->form, 'all')) {
+                $data = $this->form->all();
+            } else {
+                $data = $this->toArray();
+            }
+
             // Use custom logic if the model defines it
             if (method_exists($model, 'getCrudData')) {
                 return $model->getCrudData($this);
@@ -31,7 +38,7 @@ trait GetSetData
 
             // Automatically map form properties based on fillable fields
             return array_intersect_key(
-                $this->toArray(),
+                $data,
                 array_flip($model->getFillable())
             );
         } catch (Exception $e) {
@@ -57,10 +64,15 @@ trait GetSetData
                 return;
             }
 
-            // Automatic property assignment
-            foreach ($object->getAttributes() as $key => $value) {
-                if (property_exists($this, $key)) {
-                    $this->{$key} = $value;
+            // Check if Livewire Forms is being used
+            if (property_exists($this, 'form') && method_exists($this->form, 'fill')) {
+                $this->form->fill($object->getAttributes());
+            } else {
+                // Automatic property assignment for standard Livewire components
+                foreach ($object->getAttributes() as $key => $value) {
+                    if (property_exists($this, $key)) {
+                        $this->{$key} = $value;
+                    }
                 }
             }
         } catch (Exception $e) {

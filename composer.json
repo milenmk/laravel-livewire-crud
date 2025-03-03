@@ -1,7 +1,7 @@
 {
   "name": "milenmk/laravel-livewire-crud",
   "description": "A reusable CRUD package for Laravel controllers and Livewire components, designed to simplify and standardize common database operations(create, read, update, delete), reduce boilerplate code, and support bulk actions.",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "license": "MIT",
   "autoload": {
     "psr-4": {

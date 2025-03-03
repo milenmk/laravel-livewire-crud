@@ -1,16 +1,23 @@
 ## About
 
-This package provides a comprehensive solution for CRUD operations within your Laravel applications, offering a streamlined and reusable approach for managing data.
+This package provides a comprehensive solution for CRUD operations within your Laravel applications, offering a 
+streamlined and reusable approach for managing data.
 Whether you're working with Laravel controllers or Livewire components, this package allows you to:
 
-- Simplify common CRUD operations (create, read, update, delete) by abstracting and consolidating logic, reducing boilerplate code.
+- Simplify common CRUD operations (create, read, update, delete) by abstracting and consolidating logic 
+and reducing boilerplate code.
 - Enhance productivity by providing out-of-the-box methods for storing, updating, and deleting records.
-- Integrate seamlessly with both Laravel and Livewire, making it easy to use in traditional controllers or real-time components.
+- Integrate seamlessly with both Laravel and Livewire, making it easy to use in traditional controllers 
+or real-time components.
 - Ensure consistency across your application with standardized CRUD methods for various models.
 - Support bulk actions, enabling efficient mass deletion or updates of records.
 - Reduce development time by leveraging reusable methods for model interactions, validation and error handling.
 
-This package is ideal for developers who want to focus on business logic rather than repetitive CRUD operations, saving time and minimizing errors.
+This package is ideal for developers who want to focus on business logic rather than repetitive CRUD operations, 
+saving time and minimizing errors.
+
+Since version 1.3.0, the package also support Livewire Forms. Just move the corresponding logic (validation rules and
+CRUD methods from the component to the form)
 
 ## Requirements
 

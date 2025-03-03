@@ -1,3 +1,9 @@
+## v1.3.0
+
+#### Published at: 2025-03-03
+
+- Add support for LivewireForms
+
 ## v1.2.0
 
 #### Published at: 2025-03-03

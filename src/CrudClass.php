@@ -30,10 +30,17 @@ trait CrudClass
 
         $modelClass = $this->resolveModel($modelName);
 
-        DB::transaction(function () use ($modelClass) {
+        $data = $this->getData($modelClass);
+
+        if (empty($data)) {
+            $this->dispatchEvent('error', 'error', __('No data to store.'));
+            return;
+        }
+
+        DB::transaction(function () use ($modelClass, $data) {
 
             try {
-                $modelClass::create($this->getData($modelClass));
+                $modelClass::create($data);
                 $this->dispatchEvent('created', 'success', __('Record created'));
             } catch (Exception $e) {
                 $this->logError($e, __FUNCTION__);
@@ -158,7 +165,14 @@ trait CrudClass
 
         $modelClass = $this->resolveModel($modelName);
 
-        DB::transaction(function () use ($recordId, $modelClass) {
+        $data = $this->getData($modelClass);
+
+        if (empty($data)) {
+            $this->dispatchEvent('error', 'error', __('No data to update.'));
+            return;
+        }
+
+        DB::transaction(function () use ($recordId, $modelClass, $data) {
 
             try {
                 // Check if $id is set and use it, otherwise fallback to $recordId.
@@ -170,7 +184,7 @@ trait CrudClass
                 }
 
                 $object = $modelClass::findOrFail($idToUse);
-                $object->update($this->getData($modelClass));
+                $object->update($data);
                 $this->dispatchEvent('updated', 'success', __('Record updated'));
             } catch (Exception $e) {
                 $this->logError($e, __FUNCTION__);

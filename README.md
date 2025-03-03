@@ -133,6 +133,287 @@ final class Clients extends CommonComponent
 public array $selectedItems = [];
 ```
 
+## If you are using Livewire Forms
+
+1. Sample Livewire component
+```
+namespace App\Livewire;
+
+use App\Models\Test;
+use Illuminate\Database\Eloquent\Collection;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
+use Livewire\Component;
+use Throwable;
+
+class Tests extends Component
+{
+    public Test $model;
+
+    public TestForm $form;
+
+    public bool $addModal = false;
+
+    public bool $editModal = false;
+
+    public bool $deleteModal = false;
+
+    public string $modelName = 'Test';
+
+    #[Locked]
+    protected $id;
+
+    public function render()
+    {
+        return view('livewire.tests');
+    }
+
+    #[Computed]
+    public function data(): array
+    {
+        return [
+            ['key' => 'id', 'label' => 'ID'],
+            ['key' => 'name', 'label' => 'Name'],
+            ['key' => 'code', 'label' => 'Code'],
+            ['key' => 'region', 'label' => 'Region'],
+        ];
+    }
+
+    #[Computed]
+    public function records(): array|Collection
+    {
+        return Test::all();
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function save(): void
+    {
+        $this->form->create($this->modelName);
+
+        $this->addModal = false;
+    }
+
+    public function edit(Test $record): void
+    {
+        $this->form->fillEditForm(record: $record);
+
+        $this->editModal = true;
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function update(): void
+    {
+        $this->form->update($this->modelName, $this->form->record->id);
+
+        $this->editModal = false;
+    }
+
+    public function delete(Test $record): void
+    {
+        $this->form->fillDeleteForm(record: $record);
+
+        $this->deleteModal = true;
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function destroy(): void
+    {
+        $this->form->destroy($this->modelName, $this->form->record->id);
+
+        $this->deleteModal = false;
+    }
+}
+```
+
+2. Sample blade file (for Livewire with Flux)
+
+```
+<div>
+    <flux:modal.trigger @click="$wire.addModal = true">
+        <flux:button variant="filled">{{ __('Add Record') }}</flux:button>
+    </flux:modal.trigger>
+
+    <div class="mt-6">
+        <table>
+            <thead>
+                <tr>
+                    @foreach ($this->data as $column)
+                        <th class="text-nowrap">{{ $column['label'] }}</th>
+                    @endforeach
+
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($this->records as $record)
+                    <tr>
+                        @foreach ($this->data as $row)
+                            @php
+                                $prop = $row['key'];
+                            @endphp
+
+                            <td class="text-nowrap">{{ $record->$prop }}</td>
+                        @endforeach
+
+                        <td>
+                            <flux:button variant="primary" wire:click="edit({{ $record->id }})">
+                                {{ __('Edit Record') }}
+                            </flux:button>
+                            <flux:button variant="danger" wire:click="delete({{ $record->id }})">
+                                {{ __('Delete Record') }}
+                            </flux:button>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Modal -->
+    <flux:modal wire:model.self="addModal" class="md:w-96">
+        <div>
+            <h5 class="mb-5 font-bold">Add record</h5>
+        </div>
+
+        <flux:spacer />
+
+        <form wire:submit="save">
+            <div class="space-y-6">
+                @foreach ($this->data as $input)
+                    @if ($input['key'] !== 'id')
+                        <flux:input label="{{ __($input['label']) }}" wire:model="form.{{ $input['key'] }}" />
+                    @endif
+                @endforeach
+
+                <div class="flex">
+                    <flux:spacer />
+                    <flux:button type="submit" variant="primary">{{ __('Create') }}</flux:button>
+                </div>
+            </div>
+        </form>
+    </flux:modal>
+
+    <!-- Edit Modal -->
+    <flux:modal wire:model.self="editModal" class="md:w-96">
+        <div>
+            <h5 class="mb-5 font-bold">Edit record</h5>
+        </div>
+
+        <flux:spacer />
+
+        <form wire:submit="update()">
+            <div class="space-y-6">
+                @foreach ($this->data as $input)
+                    @if ($input['key'] !== 'id')
+                        <flux:input label="{{ __($input['label']) }}" wire:model="form.{{ $input['key'] }}" />
+                    @endif
+                @endforeach
+
+                <div class="flex">
+                    <flux:spacer />
+                    <flux:button type="submit" variant="primary">{{ __('Update') }}</flux:button>
+                </div>
+            </div>
+        </form>
+    </flux:modal>
+
+    <!-- Delete Modal -->
+    <flux:modal wire:model.self="deleteModal" class="md:w-96">
+        <div>
+            <h5 class="text-danger mb-5 font-bold">Delete record</h5>
+        </div>
+
+        <flux:spacer />
+
+        @if ($this->deleteModal === true)
+            <p class="mb-5">
+                {{ __('Are you sure you want to delete this record :name?', ['name' => $this->form->record->name]) }}
+            </p>
+        @endif
+
+        <form wire:submit="destroy()">
+            <div class="space-y-6">
+                <div class="flex">
+                    <flux:spacer />
+                    <flux:button type="submit" variant="primary">{{ __('Delete') }}</flux:button>
+                </div>
+            </div>
+        </form>
+    </flux:modal>
+</div>
+```
+3. Sample Form component
+
+```
+namespace App\Livewire;
+
+use App\Models\Test;
+use Livewire\Attributes\Validate;
+use Livewire\Form;
+use Milenmk\LaravelCrud\GetSetData;
+use Throwable;
+
+class TestForm extends Form
+{
+    use GetSetData;
+
+    public ?Test $record;
+
+    #[Validate(['required', 'max:128'])]
+    public $name = '';
+
+    #[Validate(['required', 'max:128'])]
+    public $code = '';
+
+    #[Validate(['required', 'max:128'])]
+    public $region = '';
+
+    /**
+     * @throws Throwable
+     */
+    public function create($model): void
+    {
+        $this->commonStoreData($model);
+    }
+
+    public function fillEditForm(Test $record): void
+    {
+        $this->record = $record;
+
+        $this->commonEditData('Test', $record->id);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function update($model, $recordId): void
+    {
+        $this->commonUpdateData($model, $recordId);
+    }
+
+    public function fillDeleteForm(Test $record): void
+    {
+        $this->record = $record;
+
+        $this->commonDeleteData('Test', $record->id);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function destroy($model, $recordId): void
+    {
+        $this->commonDestroyData($model, $recordId);
+    }
+}
+```
+
 ## Methods Overview
 
 - `commonStoreData('Model')` stores a new record in the database.

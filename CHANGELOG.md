@@ -1,3 +1,9 @@
+## v1.3.2
+
+#### Published at: 2025-03-04
+
+- Updated README to include sample code when using Livewire Forms
+
 ## v1.3.1
 
 #### Published at: 2025-03-04

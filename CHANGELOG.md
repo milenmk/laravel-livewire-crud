@@ -1,10 +1,19 @@
-## v1.3.3
+## v1.4.1
 
 #### Published at: 2025-09-28
 
 - Added configurable model namespace in ModelResolver trait with fallback to App\Models\
 - Improved data retrieval in GetSetData trait to support form->data fallback
 - CRUD methods now handle UUID for model's ID
+- Fix: Allow string IDs and improve form data handling
+
+## v1.4.0
+
+#### Published at: 2025-09-28
+
+- feat: Refactor CrudClass and related traits for improved modularity and error handling
+- feat: Update README with new features and contribution guidelines
+- feat: Enhance codebase and update dependencies
 
 ## v1.3.2
 

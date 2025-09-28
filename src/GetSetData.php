@@ -16,11 +16,11 @@ trait GetSetData
     /**
      * Get data for the model.
      */
-    protected function getData(string $modelName): array
+    protected function getData(string $modelClass): array
     {
 
         try {
-            $model = app($modelName);
+            $model = app($modelClass);
 
             // Check if Livewire Forms is being used
             $data = property_exists($this, 'form') && method_exists($this->form, 'all') ? $this->form->all() : $this->toArray();
@@ -45,11 +45,11 @@ trait GetSetData
     /**
      * Set data from the object to the properties.
      */
-    protected function setDataFromObject(string $modelName, object $object): void
+    protected function setDataFromObject(string $modelClass, object $object): void
     {
 
         try {
-            $model = app($modelName);
+            $model = app($modelClass);
 
             // Use custom logic if the model defines it
             if (method_exists($model, 'setCrudData')) {

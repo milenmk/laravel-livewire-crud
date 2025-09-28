@@ -1,5 +1,3 @@
-## Laravel Livewire Crud
-
 <div align="center">
 
 <a href="https://packagist.org/packages/milenmk/laravel-livewire-crud">![Latest Version on Packagist](https://img.shields.io/packagist/v/milenmk/laravel-livewire-crud.svg?style=flat)</a>

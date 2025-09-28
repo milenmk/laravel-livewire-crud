@@ -35,7 +35,7 @@ trait CrudOperations
      *
      * @param  int  $recordId  Record ID
      */
-    public function commonDeleteData(string $modelName, int $recordId): void
+    public function commonDeleteData(string $modelName, intint|string $recordId): void
     {
         $this->loadRecordForAction($modelName, $recordId);
     }
@@ -47,7 +47,7 @@ trait CrudOperations
      *
      * @throws Throwable
      */
-    public function commonDestroyData(string $modelName, ?int $recordId = null): void
+    public function commonDestroyData(string $modelName, int|string|null $recordId = null): void
     {
         $modelClass = $this->resolveModel($modelName);
 
@@ -73,7 +73,7 @@ trait CrudOperations
      *
      * @param  int  $recordId  Record ID
      */
-    public function commonEditData(string $modelName, int $recordId): void
+    public function commonEditData(string $modelName, int|string $recordId): void
     {
         $this->loadRecordForAction($modelName, $recordId);
     }
@@ -118,7 +118,7 @@ trait CrudOperations
      *
      * @throws Throwable
      */
-    public function commonUpdateData(string $modelName, ?int $recordId = null): void
+    public function commonUpdateData(string $modelName, int|string|null $recordId = null): void
     {
         $this->validateIfAvailable();
 
@@ -152,7 +152,7 @@ trait CrudOperations
     /**
      * Get the record ID to use.
      */
-    private function getRecordId(?int $recordId = null): int
+    private function getRecordId(int|string|null $recordId = null): int|string
     {
         $idToUse = $this->id ?? $recordId;
 
@@ -166,7 +166,7 @@ trait CrudOperations
     /**
      * Load record for action and set data.
      */
-    private function loadRecordForAction(string $modelName, int $recordId): void
+    private function loadRecordForAction(string $modelName, int|string $recordId): void
     {
         $modelClass = $this->resolveModel($modelName);
 

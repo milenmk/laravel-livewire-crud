@@ -13,12 +13,20 @@ use InvalidArgumentException;
 trait ModelResolver
 {
     /**
+     * Get the base namespace for models.
+     */
+    protected function getModelNamespace(): string
+    {
+        return 'App\\Models\\';
+    }
+
+    /**
      * @param  string  $modelName  Name of the model (e.g., 'User')
      */
     protected function resolveModel(string $modelName): string
     {
 
-        $modelClass = "App\\Models\\$modelName";
+        $modelClass = $this->getModelNamespace().$modelName;
 
         if (! class_exists($modelClass) || ! is_subclass_of($modelClass, Model::class)) {
             throw new InvalidArgumentException("Invalid model: $modelName");

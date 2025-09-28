@@ -23,7 +23,7 @@ trait GetSetData
             $model = app($modelClass);
 
             // Check if Livewire Forms is being used
-            $data = property_exists($this, 'form') && method_exists($this->form, 'all') ? $this->form->all() : $this->toArray();
+            $data = property_exists($this, 'form') && method_exists($this->form, 'all') ? $this->form->all() : (property_exists($this, 'form') && property_exists($this->form, 'data') ? $this->form->data : []);
 
             // Use custom logic if the model defines it
             if (method_exists($model, 'getCrudData')) {

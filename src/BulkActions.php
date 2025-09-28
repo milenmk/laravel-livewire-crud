@@ -9,18 +9,14 @@ use Illuminate\Support\Facades\DB;
 use Throwable;
 
 /**
- * Trait for Bulk Actions
+ * Trait for Bulk Actions.
  */
 trait BulkActions
 {
-
     /**
-     * Bulk delete data from database
+     * Bulk delete data from database.
      *
-     * @param  string  $modelName
-     * @param  array  $recordsIds
      *
-     * @return void
      * @throws Throwable
      */
     public function commonBulkDestroyData(string $modelName, array $recordsIds): void
@@ -29,7 +25,7 @@ trait BulkActions
         $modelClass = $this->resolveModel($modelName);
         $errors = 0;
 
-        DB::transaction(function () use ($modelClass, $recordsIds, &$errors) {
+        DB::transaction(function () use ($modelClass, $recordsIds, &$errors): void {
 
             foreach ($recordsIds as $recordId) {
                 try {
@@ -41,8 +37,7 @@ trait BulkActions
             }
         });
 
-        $this->dispatchEvent($errors ? 'bulk-delete-failed' : 'bulk-deleted');
+        $this->dispatchEvent($errors !== 0 ? 'bulk-delete-failed' : 'bulk-deleted');
         $this->cancelActionIfAvailable();
     }
-
 }

@@ -7,15 +7,14 @@ namespace Milenmk\LaravelCrud;
 use Exception;
 
 /**
- * Get or Set data for models
+ * Get or Set data for models.
  */
 trait GetSetData
 {
-
     use CrudClass;
 
     /**
-     * Get data for the model
+     * Get data for the model.
      */
     protected function getData(string $modelName): array
     {
@@ -24,11 +23,7 @@ trait GetSetData
             $model = app($modelName);
 
             // Check if Livewire Forms is being used
-            if (property_exists($this, 'form') && method_exists($this->form, 'all')) {
-                $data = $this->form->all();
-            } else {
-                $data = $this->toArray();
-            }
+            $data = property_exists($this, 'form') && method_exists($this->form, 'all') ? $this->form->all() : $this->toArray();
 
             // Use custom logic if the model defines it
             if (method_exists($model, 'getCrudData')) {
@@ -48,7 +43,7 @@ trait GetSetData
     }
 
     /**
-     * Set data from the object to the properties
+     * Set data from the object to the properties.
      */
     protected function setDataFromObject(string $modelName, object $object): void
     {
@@ -78,5 +73,4 @@ trait GetSetData
             $this->logError($e, __FUNCTION__);
         }
     }
-
 }
